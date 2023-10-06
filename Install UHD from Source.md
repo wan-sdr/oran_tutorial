@@ -3,8 +3,8 @@
 ## Table of contents
 
 - [Abstract](#abstract)
-- [Devices](#devices)
 - [Quick Start](#quick-start)
+- [Devices](#devices)
 - [Dependencies](#dependencies)
 - [Building and Installing from Source Code](#build-install)
 - [Configuring USB](#configure-usb)
@@ -22,17 +22,39 @@ architecture, see [Additional Resources](#additional-resources).
 
 ### Tested Configuration
 
-| Component         | Version           |
-|:------------------|:------------------|
-| PC Architecture   | x86               |
-| Operating System  | Linux             |
-| Distribution      | Ubuntu 22.04 LTS  |
-| UHD Tag           | v4.5.0.0          |
-| Virtualization    | None              |
-
-## Devices
+| Component         | Version          |
+|:------------------|:-----------------|
+| PC Architecture   | x86              |
+| Operating System  | Linux            |
+| Distribution      | Ubuntu 22.04 LTS |
+| UHD Tag           | v4.5.0.0         |
+| Virtualization    | N/A              |
 
 ## Quick Start
+This section summarizes the step-by-step actions given in the rest of this guide. Follow these steps for 
+a quick start experience. If you want to learn the technical details behind these steps, please read the entire 
+guide.
+
+**1. Install Ubuntu Desktop**
+
+Follow the [instructions](https://ubuntu.com/tutorials/install-ubuntu-desktop#1-overview) provided by Ubuntu.
+
+**2. Install Dependencies** 
+
+In a terminal, run these shell commands:
+```shell
+# update package list
+sudo apt-get update
+
+# install Linux utilities, including build toolchain
+sudo apt-get -y install build-essential ccache clang clang-format-14 cmake cmake-curses-gui cpufrequtils curl ethtool git inetutils-tools nano wget
+
+# install UHD dependencies
+sudo apt-get -y install doxygen dpdk libboost-all-dev libdpdk-dev libgps-dev libudev-dev libusb-1.0-0-dev python3-dev python3-docutils python3-mako python3-numpy python3-pip python3-requests
+
+```
+
+## Devices
 
 ## Dependencies
 
