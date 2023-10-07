@@ -50,7 +50,7 @@ sudo apt-get -y install build-essential ccache clang clang-format-14 cmake cmake
 sudo apt-get -y install doxygen dpdk libboost-all-dev libdpdk-dev libgps-dev libudev-dev libusb-1.0-0-dev python3-dev python3-docutils python3-mako python3-numpy python3-pip python3-requests python3-ruamel.yaml
 ```
 
-**3. Clone repository and checkout latest release**
+**3. Get the latest source code**
 
 Run these commands:
 
@@ -61,7 +61,7 @@ cd $HOME && mkdir workarea && cd workarea
 git clone https://github.com/EttusResearch/uhd.git uhd && cd uhd && git checkout v4.5.0.0
 ```
 
-**4. Build and Install**
+**4. Build and install**
 
 To set a custom install prefix, see the detailed [Build and Install from Source](#build-and-install-from-source) section.
 Otherwise, to build and install with the default options, run these commands:
@@ -128,10 +128,64 @@ development, and other open source projects that use UHD, see the rest of this g
 [Additional Resources](#additional-resources).**
 
 ## Devices
+This guide only applies to USRP devices that operate by streaming IQ samples to an external host PC (x86 architecture) 
+via Ethernet or 
+USB. This mode of operation is 
+called **host (or network) mode**. Some USRP devices can operate in **embedded mode** where the IQ samples are 
+processed directly on the device's embedded ARM CPU, without streaming to an external host PC. Installing UHD on the 
+embedded CPU requires cross-compilation for the ARM architecture, which is not covered in this guide. The following 
+table groups each USRP device by operation mode:
+
+| Operation Mode   | USRP Devices                                                         |
+|------------------|----------------------------------------------------------------------|
+| Host/Network Only | X310, X300, N210, N200, B210, B200, B200mini, B200mini-i, B205mini-i |
+| Embedded Only    | E310, E312, E313                                                     |
+| Both             | X410, X440, N321, N320, N310, N300, E320                             |
+
+**NOTE:** The embedded only devices can technically operate network mode, with very limited throughput, which we 
+generally do not recommend. 
 
 ## Dependencies
 
+We tested this guide with the [configuration](#tested-configuration) above, but the dependencies described in this 
+section should work for Ubuntu 20.04 LTS and Ubuntu 22.04 LTS with UHD v4.0.0.0 or later. For other older version of 
+Ubuntu, or other Linux distributions, please see [Additional Resources](#additional-resources).
+
+Dependencies are other software libraries that a software calls functions from. When building and 
+installing from source code, the user must make sure these dependencies are present on the operating system and the 
+toolchain must know where to find them. When installing software as a prebuilt package, the software installer or 
+the OS package manager takes care of the dependencies for you.
+
+In addition to software libraries that UHD needs to function, you also need to install several essential Linux 
+utilities 
+to perform the build from source process and to configure system settings after installation. These 
+utilities include version control system, build automation tools, toolchains, etc.
+
+All UHD dependencies and essential Linux utilities are open source software that is available as prebuilt packages 
+installed using the standard Ubuntu package manager ``apt``. ``apt`` looks in a list of repositories to find these 
+packages, the standard repository is ``Universe``. More recent versions of packages may be available in a third party 
+repositories called a PPA, maintained by the original software developers or community members.  
+
+You can get all packages needed to build, install and use UHD using ``apt`` and the ``Universe`` repository. 
+Typically, do you need to build the dependencies themselves from source, or get them from a PPA, unless you are 
+combining an older version of UHD and OS, or modifying UHD. 
+
+To install dependencies, run these commands:
+
+```shell
+# update package list
+sudo apt-get update
+# install Linux utilities, including build toolchain
+sudo apt-get -y install build-essential ccache clang clang-format-14 cmake cmake-curses-gui cpufrequtils curl ethtool git inetutils-tools nano wget
+# install UHD dependencies
+sudo apt-get -y install doxygen dpdk libboost-all-dev libdpdk-dev libgps-dev libudev-dev libusb-1.0-0-dev python3-dev python3-docutils python3-mako python3-numpy python3-pip python3-requests python3-ruamel.yaml
+```
+
 ## Build and Install from Source
+
+
+
+
 
 ## Post Installation Configuration
 
