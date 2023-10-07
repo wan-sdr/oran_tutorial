@@ -1,4 +1,4 @@
-# Build and Install UHD from Source
+# Build and Install UHD from Source Code
 
 ## Table of contents
 
@@ -6,11 +6,8 @@
 - [Quick Start](#quick-start)
 - [Devices](#devices)
 - [Dependencies](#dependencies)
-- [Building and Installing from Source Code](#build-install)
-- [Configuring USB](#configure-usb)
-- [Configuring Ethernet](#configure-ethernet)
-- [Verifying Operation](#verify-operation)
-- [Thread Priority](#thread-priority)
+- [Build and Install from Source](#build-and-install-from-source)
+- [Post Installation Configuration](#post-installation-configuration)
 - [Additional Resources](#additional-resources)
 
 ## Abstract
@@ -32,8 +29,8 @@ architecture, see [Additional Resources](#additional-resources).
 
 ## Quick Start
 
-This section summarizes the step-by-step actions described in detailed in the rest of this guide.
-guide.
+This section summarizes the step-by-step actions for a quick start experience, see the rest of this guide for more 
+details.
 
 **1. Install Ubuntu Desktop**
 
@@ -66,7 +63,7 @@ git clone https://github.com/EttusResearch/uhd.git uhd && cd uhd && git checkout
 
 **4. Build and Install**
 
-To set a custom install prefix, see the detailed [Building and Installing from Source Code](#build-install) section.
+To set a custom install prefix, see the detailed [Build and Install from Source](#build-and-install-from-source) section.
 Otherwise, to build and install with the default options, run these commands:
 
 ```shell
@@ -99,7 +96,7 @@ PC: https://linuxconfig.org/how-to-configure-static-ip-address-on-ubuntu-22-04-j
 
 This table gives an example of the host network configuration for the USRP X310's SFP0 port with factory settings.
 ``Address`` and ``MTU`` depend on your device's specific settings,
-see [Post Installation Configuration](#post-installation)
+see [Post Installation Configuration](#post-installation-configuration)
 
 | Field       | Value         |
 |-------------|---------------|
@@ -134,15 +131,9 @@ development, and other open source projects that use UHD, see the rest of this g
 
 ## Dependencies
 
-## Building and Installing from Source Code
+## Build and Install from Source
 
-## Configuring USB
-
-## Configuring Ethernet
-
-## Verifying Operation
-
-## Thread Priority
+## Post Installation Configuration
 
 ## Additional Resources
 
