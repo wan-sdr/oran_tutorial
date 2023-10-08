@@ -39,8 +39,9 @@ https://ubuntu.com/tutorials/install-ubuntu-desktop#1-overview
 
 **2. Install prebuilt UHD packages from PPA**
 
-For the *quickest* start experience, install prebuilt UHD packages from the Ettus Research PPA. If you want like to 
-learn the build and install from source process instead, skip to step 3.
+For the *quickest* start experience, install prebuilt UHD packages from the Ettus Research PPA. Instead, If you want
+to learn the build and install from source process, skip to step 3.
+
 ```shell
 # add ettus research ppa
 sudo add-apt-repository ppa:ettusresearch/uhd
@@ -95,7 +96,7 @@ sudo ldconfig
 
 **6. Device specific configuration**
 
-For USB devices, run these commands:
+For USB devices, run these commands **with the USRP disconnected**:
 
 ```shell
 #  add UHD-specific rules to the system's udev rules
@@ -294,11 +295,13 @@ git clone https://github.com/EttusResearch/uhd.git uhd && cd uhd && git checkout
 ```
 
 To get a full list of tags:
+
 ```shell
 git tag -l
 ```
 
 To checkout the master or a maintenance branch:
+
 ```shell
 # Example for UHD master branch:
 git checkout master
@@ -307,15 +310,17 @@ git checkout UHD-4.5
 ```
 
 ### Build and Install with System Prefix
-CMake is the tool for configuring build options. An important CMake flag is ``-DCMAKE_INSTALL_PREFIX``. The default 
-value is the system prefix. It tells Make to install UHD to the standard location ``/usr/local``
-where the operating 
-system will be able to find it in the standard ``$PATH`` and other environment variables. 
 
-You can only install one concurrent version of UHD using the system prefix. To install multiple concurrent versions, see 
+CMake is the tool for configuring build options. An important CMake flag is ``-DCMAKE_INSTALL_PREFIX``. The default
+value is the system prefix. It tells Make to install UHD to the standard location ``/usr/local``
+where the operating
+system will be able to find it in the standard ``$PATH`` and other environment variables.
+
+You can only install one concurrent version of UHD using the system prefix. To install multiple concurrent versions, see
 [Build and Install with Custom Prefix](#build-and-install-with-custom-prefix).
 
 To build and install UHD with system prefix:
+
 ```shell
 # create a directory for the build output
 cd $HOME/workarea/uhd/host && mkdir build && cd build
@@ -331,15 +336,17 @@ sudo make install
 sudo ldconfig
 ```
 
-**NOTE:** If some test cases fail in the optional ``make test`` step, it does not mean that the build failed. The test 
-cases or the units under test might have a bug. Contact technical support in this case. 
+**NOTE:** If some test cases fail in the optional ``make test`` step, it does not mean that the build failed. The test
+cases or the units under test might have a bug. Contact technical support in this case.
 
 #### Pro Tip: View All CMake Flags
-It generally takes some experience with UHD to know all the important CMake Flags. The ``CMakeLists.txt`` files in 
-the source code will give a lot of insight about build options. However, a simpler way to see all the available 
-options is to use the ``cmake-curses-gui`` tool. 
+
+It generally takes some experience with UHD to know all the important CMake Flags. The ``CMakeLists.txt`` files in
+the source code will give a lot of insight about build options. However, a simpler way to see all the available
+options is to use the ``cmake-curses-gui`` tool.
 
 To see all CMake flags:
+
 ```shell
 # install cmake-curses-gui package
 sudo apt-get update && sudo apt-get install cmake-curses-gui
@@ -351,23 +358,27 @@ ccmake ..
 ```
 
 Output of ``ccmake ..``
+
 ```shell
 
 ```
-### Build and Install with Custom Prefix
-If you want to install multiple concurrent versions of UHD, use the CMake flag 
-``-DCMAKE_INSTALL_PREFIX=<your-custom-prefix>``. The custom prefix can be any directory, but it's good practice to 
-create an ``installs`` directory in ``$HOME/workarea`` that you created earlier. You need a different custom prefix 
-for each UHD version. In addition, you can also have one version of 
-UHD in the system prefix. 
 
-Another benefit of this method is that you can build and install UHD dependencies from source as well and put them 
-in the custom prefix. This is helpful, if you need to experiment with versions of dependencies not available 
-through ``apt`` and its PPAs, or if you just want to  preserve the state of your system packages to avoid 
-conflicts with other projects. As long as the dependency uses CMake, you should be able to configure a custom prefix 
+### Build and Install with Custom Prefix
+
+If you want to install multiple concurrent versions of UHD, use the CMake flag
+``-DCMAKE_INSTALL_PREFIX=<your-custom-prefix>``. The custom prefix can be any directory, but it's good practice to
+create an ``installs`` directory in ``$HOME/workarea`` that you created earlier. You need a different custom prefix
+for each UHD version. In addition, you can also have one version of
+UHD in the system prefix.
+
+Another benefit of this method is that you can build and install UHD dependencies from source as well and put them
+in the custom prefix. This is helpful, if you need to experiment with versions of dependencies not available
+through ``apt`` and its PPAs, or if you just want to preserve the state of your system packages to avoid
+conflicts with other projects. As long as the dependency uses CMake, you should be able to configure a custom prefix
 for it.
 
 To build and install UHD with custom prefix:
+
 ```shell
 # create a directory for all custom prefix installations
 cd $HOME/workarea && mkdir installs
@@ -384,22 +395,28 @@ sudo make install
 # update dynamic linker with most recent shared libraries
 sudo ldconfig
 ```
+
 Output of ``cmake -DCMAKE_INSTALL_PREFIX=~/workarea/installs/uhdv4_5_0_0 ..``
+
 ```shell
 
 ```
-The operating system cannot find UHD at the custom prefix location using the default values of ``$PATH`` and other 
-environmental variables. Important paths with in the custom prefix need to be added to the relevant environment 
+
+The operating system cannot find UHD at the custom prefix location using the default values of ``$PATH`` and other
+environmental variables. Important paths with in the custom prefix need to be added to the relevant environment
 variables.
 
 Create a ``bash`` shell script to update the environment variables:
+
 ```shell
 # go to the directory for the custom prefix
 cd $HOME/workarea/installs/uhdv4_5_0_0
 # create an empty file for the script
 touch uhdv4_5_0_0.env
 ```
+
 Copy the following code into the file using an editor like ``nano``:
+
 ```shell
 #!/bin/bash
 
@@ -413,20 +430,166 @@ export PKG_CONFIG_PATH=$CUSTOMPREFIX/lib/pkgconfig:$PKG_CONFIG_PATH
 export UHD_RFNOC_DIR=$CUSTOMPREFIX/share/uhd/rfnoc/
 export UHD_IMAGES_DIR=$CUSTOMPREFIX/share/uhd/images
 ```
+
 To activate the environment for the custom prefix:
+
 ```shell
-# source the environment activation script
 source uhdv4_5_0_0.env
 ```
-The built-in command ``source`` is for ``bash`` shells only. It affects only the terminal it is called in. Therefore,
-you can have multiple terminals, each with a different custom prefix environment activated. The effects do not 
-persist after the terminal is closed. 
 
-**NOTE:** Installing UHD to a custom prefix also affects how other software that depends on UHD will find it when they are 
+The built-in command ``source`` is for ``bash`` shells only. It affects only the terminal it is called in. Therefore,
+you can have multiple terminals, each with a different custom prefix environment activated. The effects do not
+persist after the terminal is closed.
+
+**NOTE:** Installing UHD to a custom prefix also affects how other software that depends on UHD will find it when they
+are
 built from source, see [Find UHD in Custom Prefix](#find-uhd-in-custom-prefix).
 
 ## Post Installation Configuration
 
+### Configure USB Devices
+
+On Linux, ``udev`` handles USB plug and unplug events. The following commands install a udev rule so that non-root users
+may
+access the device. This step is only necessary for devices that use USB to connect to the host computer, such as the
+B200, B210, B200mini, B200mini-i, and B205mini-i. This setting should take effect immediately and does not require a
+reboot or
+logout/login. Be
+sure that no USRP device is connected via USB when running these commands
+
+```shell
+#  add UHD-specific rules to the system's udev rules
+cd $HOME/workarea/uhd/host/utils
+sudo cp uhd-usrp.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+```
+
+Verify USB connection using:
+
+```shell
+lsusb
+```
+
+Output:
+
+```shell
+
+```
+
+### Configure Ethernet Devices
+
+The network interface of the host PC needs to have a static IP address on the same subnet as the USRP IP address. You
+should
+configure the network interface using the graphical Network Manager. If you use the command line tool ``ifconfig``, the
+Network Manager will probably overwrite these settings. Follow these instructions to configure static IP on the host
+PC: https://linuxconfig.org/how-to-configure-static-ip-address-on-ubuntu-22-04-jammy-jellyfish-desktop-server
+
+The table below gives an example of the host network configuration for the USRP X310's SFP0 port with factory settings.
+The default IP of SFP0 is 192.168.10.2, so we can assign the host PC with the IP 192.168.10.1. The default
+Ethernet PHY of SFP0 is 1 GbE, so MTU is set to 1500. If the Ethernet PHY is 10 GbE, then MTU is set to 9000.
+
+| Field       | Value         |
+|-------------|---------------|
+| IPv4 Method | Manual        |
+| Address     | 192.168.10.1  |
+| Subnet Mask | 255.255.255.0 |
+| MTU         | 1500          |
+
+Verify network connection using ``ping``:
+
+```shell
+ping 192.168.10.2
+```
+
+Output:
+
+```shell
+
+```
+
+To learn more about default network settings of each device, see the [UHD Manual](https://files.ettus.com/manual/).
+
+If you have any issues with connecting to the USRP, see [Additional Resources](#additional-resources) or contact
+Technical Support.
+
+### Verify Device Operation
+
+The FPGA image version on the USRP must match the UHD version on the host PC.
+
+Download FPGA images for the installed version of UHD:
+
+```shell
+sudo uhd_images_downloader
+```
+
+Output:
+
+```shell
+
+```
+
+Find all USRP devices connected to host PC:
+
+```shell
+uhd_find_devices
+```
+
+Output:
+
+```shell
+
+```
+
+Probe USRP device properties
+
+```shell
+uhd_usrp_probe
+```
+
+Output:
+
+```shell
+
+```
+
+### SDR Application Development
+
+For a complete open-source SDR toolchain, you also need an application that processes the IQ samples that UHD
+streams between USRP and host PC. This could be an application that you develop using the UHD C/C++ or
+Python API, or existing application framework such as GNU Radio, Open Air Interface, SRS RAN, etc.
+
+When building these applications from source code, they are typically configured to look for UHD in the system prefix.
+If UHD is installed in a custom prefix, configure the build system of these applications using the relevant CMake
+flags to find UHD as a dependency.
+
+Use the following CMake flags when building the application stack on top of UHD:
+```-DCMAKE_INSTALL_PREFIX=<your-custom-prefix>``` ```-DUHD_DIR=<your-custom-prefix>lib/cmake/uhd/```
+```-DUHD_INCLUDE_DIRS=<your-custom-prefix>/include/``` and ```-DUHD_LIBRARIES=<your-custom-prefix>/lib/libuhd.so```.
+
+How these flags are applied depends on the application's build system. For GNU Radio, you can add them when running 
+the``cmake`` command. 
+
 ## Additional Resources
+### UHD Installation
+* Overview of All UHD Installation Application Notes (Coming soon...)
+* Build and Install UHD on Older Ubuntu and Other Linux Distributions (Coming soon...)
+* Build and Install UHD from Source on Mac
+* Build and Install UHD from Source on Windows
+* Build and Install UHD from Source on an Offline System
+* Using UHD with Windows Subsystem Linux (Coming soon...)
+* Using UHD with Docker Containers (Coming soon...)
+
+### Troubleshooting
+* Verifying Device Operation
+* Host Performance Tuning
+* Device Discovery Issues
+* Device Recovery
+
+### Application Development
+* Developing UHD Application
+* GNU Radio Installation
+* OAI Reference Architecture
+* SRS Reference Architecture (Coming Soon)
 
 
