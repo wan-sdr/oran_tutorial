@@ -25,24 +25,18 @@ additional configuration in the Windows host OS. The official WSL documentation 
 connecting USB devices:
 https://learn.microsoft.com/en-us/windows/wsl/connect-usb
 
-After the step ``usbipd wsl list``, from the WSL guide above, look for the ``busid`` of the Ettus Research 
-device.
+After the USRP device is attached to WSL, ``usbipd`` shows its status as 
+"attached" in the list of devices available on the Windows host OS. 
 
 Example output of the ``usbipd wsl list`` command from a Windows Power Shell terminal in the Windows host OS:
 ```shell
 BUSID  VID:PID    DEVICE                                                        STATE
 ...
-5-1    2500:0022  Ettus Research B205mini                                       Not attached
+5-1    2500:0022  Ettus Research B205mini                                       Attached - OAI-Ubuntu-22.04
 ...
 ```
 
-As explained in the WSL guide, use this ``busid`` to attach the USRP to the WSL guest VM. Once attached, the 
-USRP no longer shows up on the list of devices connected to the Windows host OS, verify this with ``usbipd wsl 
-list`` in the Windows Power Shell terminal. 
-
-Instead, the USRP device now shows up on the list of devices inside the WSL 
-guest VM, verify this with 
-``lsusb`` in the WSL terminal.
+Likewise, ``lsusb`` also finds the device inside the WSL guest VM.
 
 Example output of the ``lsusb`` command in a Linux Bash terminal inside the WSL guest VM:
 
@@ -72,12 +66,13 @@ sudo udevadm control --reload-rules
 sudo udevadm trigger
 ```
 **3. Understand the Effect of Loading FPGA Images**
+
 The FPGA image does not persist on the USRP B Series devices. It is loaded automatically by UHD every time you run 
 an application. 
 
 Therefore, when the device is connected to the host PC, it does not have an FPGA image initially. The ``usbipd`` 
 process running the Windows host OS, assigns a ``busid`` to the device in this image-less state. If you disconnect 
-at this point then reconnect to the same USB port on the host PC, the ``usbipd`` process will assign the same ``busid``.
+at this point then reconnect to the same USB port, the ``usbipd`` process will assign the same ``busid``.
 
 Connect the USRP, then list the USB devices in Windows Power Shell:
 ```shell
