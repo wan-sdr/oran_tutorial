@@ -99,8 +99,8 @@ BUSID  VID:PID    DEVICE                                                        
 
 When you run an application that uses UHD, the driver will first load the FPGA image. The USRP momentarily 
 disconnects from the host PC, then reconnects in its new imaged state. The FPGA image will persist as long as the 
-USRP stays powered on (i.e. USB cable stays connected). Therefore, loading a new FPGA image, 
-or disconnecting the USB cable, affects the ``busid`` assignment by ``usbipd``. The overall effect on device 
+USRP stays powered on (i.e. USB cable stays connected). As a result, loading a new FPGA image, 
+or disconnecting the USB cable, **changes the ``busid`` assignment by ``usbipd``**. The overall effect on device 
 operation inside WSL is explained in more detailed in [Verify Device Operation](#verify-device-operation).
 
 
