@@ -22,7 +22,7 @@
 
 This Application Note provides a comprehensive guide for building and installing the open-source USRP Hardware Driver (
 UHD) from source code. This guide addresses the use case shown in [Tested Configuration](#tested-configuration). For
-other use cases, such as using package manager, other Linux distributions, Mac, Windows, Docker, WSL, and ARM
+other use cases, such as other Linux distributions, Mac, Windows, Docker, WSL, and ARM
 architecture, see [Additional Resources](#additional-resources).
 
 ### Tested Configuration
@@ -37,7 +37,7 @@ architecture, see [Additional Resources](#additional-resources).
 
 ## Quick Start
 
-This section summarizes the step-by-step actions for a quick start experience, see the rest of this guide for more
+This section summarizes the step-by-step for a quick start experience, see the rest of this guide for more
 details.
 
 ### Option 1: Prebuilt Packages from PPA
@@ -61,7 +61,7 @@ sudo apt-get update
 sudo apt-get install libuhd-dev uhd-host uhd-doc
 ```
 
-**3mak. Verify device operation**
+**3. Verify device operation**
 
 Run these commands:
 
@@ -141,7 +141,7 @@ PC: https://linuxconfig.org/how-to-configure-static-ip-address-on-ubuntu-22-04-j
 
 This table gives an example of the host network configuration for the USRP X310's SFP0 port with factory settings.
 ``Address`` and ``MTU`` depend on your device's specific settings,
-see [Post Installation Configuration](#post-installation-configuration)
+see [Configure Ethernet Devices](#configure-ethernet-devices)
 
 | Field       | Value         |
 |-------------|---------------|
@@ -369,7 +369,7 @@ sudo ldconfig
 **NOTE:** If some test cases fail in the optional ``make test`` step, it does not mean that the build failed. The test
 cases or the units under test might have a bug. Contact technical support in this case.
 
-The install prefix ``/usr/local`` is shown near the end of the example output of ``cmake ..``:
+The system prefix ``/usr/local`` is shown at the end of the example output of ``cmake ..``:
 
 ```shell
 ...
@@ -491,15 +491,9 @@ Components" list from the output of ``cmake ..``
 
 If you want to install multiple concurrent versions of UHD, use the CMake flag
 ``-DCMAKE_INSTALL_PREFIX=<your-custom-prefix>``. The custom prefix can be any directory, but it's good practice to
-create an ``installs`` directory in ``$HOME/workarea`` that you created earlier. You need a different custom prefix
-for each UHD version. In addition, you can also have one version of
+create an ``installs`` directory in ``$HOME/workarea`` that you created earlier. You need a **different custom prefix
+for each UHD version**. In addition, you can also have one version of
 UHD in the system prefix.
-
-Another benefit of this method is that you can build and install UHD dependencies from source as well and put them
-in the custom prefix. This is helpful, if you need to experiment with versions of dependencies not available
-through ``apt`` and its PPAs, or if you just want to preserve the state of your system packages to avoid
-conflicts with other projects. As long as the dependency uses CMake, you should be able to configure a custom prefix
-for it.
 
 To build and install UHD with custom prefix:
 
@@ -507,7 +501,7 @@ To build and install UHD with custom prefix:
 # create a directory for all custom prefix installations
 cd $HOME/workarea && mkdir installs
 # create a directory for the build output
-cd $HOME/workarea/uhd/host && mkdir build && cd build
+cd $HOME/workarea/uhd/host && mkdir build_custom_prefix && cd build_custom_prefix
 # use CMake to configure the build with default options
 cmake -DCMAKE_INSTALL_PREFIX=~/workarea/installs/uhdv4_5_0_0 ..
 # build the source code, using 8 threads
@@ -515,22 +509,78 @@ make -j8
 # optionally, run unit tests
 make test
 # install into default prefix, /usr/local
-sudo make install
+make install
 # update dynamic linker with most recent shared libraries
 sudo ldconfig
 ```
 
-Output of ``cmake -DCMAKE_INSTALL_PREFIX=~/workarea/installs/uhdv4_5_0_0 ..``
+**NOTE:** ``sudo`` is not necesssary in the ``make install`` because the install files are not written to a
+privileged directory like ``/usr/local``. In fact, adding ``sudo`` to this step, makes the custom prefix a
+privileged directory, and non-root users cannot it.
+
+The custom prefix ``~/workarea/installs/uhdv4_5_0_0``
+
+is shown in example output of
+``cmake -DCMAKE_INSTALL_PREFIX=~/workarea/installs/uhdv4_5_0_0 ..``
 
 ```shell
-
+...
+-- Building version: 4.5.0.HEAD-0-g471af98f
+-- Using install prefix: /home/orantestbed/workarea/installs/uhdv4_5_0_0
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/orantestbed/workarea/uhd/host/build_custom_prefix
 ```
 
-The operating system cannot find UHD at the custom prefix location using the default values of ``$PATH`` and other
-environmental variables. Important paths with in the custom prefix need to be added to the relevant environment
+Look inside the custom prefix for various UHD program directories:
+
+```shell
+ls /home/orantestbed/workarea/installs/uhdv4_5_0_0
+```
+
+Output:
+
+```shell
+bin  include  lib  share
+```
+
+Look inside ``bin`` for the binary executables of various utilities:
+
+```shell
+ls /home/orantestbed/workarea/installs/uhdv4_5_0_0/bin
+```
+
+Output:
+
+```shell
+rfnoc_image_builder    uhd_cal_tx_dc_offset   uhd_find_devices       uhd_usrp_probe     usrpctl
+uhd_adc_self_cal       uhd_cal_tx_iq_balance  uhd_image_loader       usrp2_card_burner
+uhd_cal_rx_iq_balance  uhd_config_info        uhd_images_downloader  usrp_hwd.py
+```
+
+The operating system cannot find these UHD program files at the custom prefix location using the default values of
+``$PATH`` and other
+environmental variables. Important paths within the custom prefix need to be added to the relevant environment
 variables.
 
-Create a ``bash`` shell script to update the environment variables:
+Look for a UHD program file listed above:
+
+```shell
+which uhd_find_devices
+```
+
+``which`` returns the version installed in the system prefix, or no result if none exists, as shown in the
+example
+output:
+
+```shell
+/usr/local/bin/uhd_find_devices
+```
+
+The environment of the custom prefix need to be "activated" by updating the appropriate environment variables.
+
+Create a ``bash`` shell
+script to update the environment variables:
 
 ```shell
 # go to the directory for the custom prefix
@@ -548,11 +598,24 @@ CUSTOMPREFIX=$HOME/workarea/installs/uhdv4_5_0_0
 export PATH=$CUSTOMPREFIX/bin:$PATH
 export LD_LOAD_LIBRARY=$CUSTOMPREFIX/lib:$LD_LOAD_LIBRARY
 export LD_LIBRARY_PATH=$CUSTOMPREFIX/lib:$LD_LIBRARY_PATH
-export PYTHONPATH=$CUSTOMPREFIX/lib/python2.7/site-packages:$PYTHONPATH
-export PYTHONPATH=$CUSTOMPREFIX/lib/python2.7/dist-packages:$PYTHONPATH
+export PYTHONPATH=$CUSTOMPREFIX/lib/python3.10/site-packages:$PYTHONPATH
 export PKG_CONFIG_PATH=$CUSTOMPREFIX/lib/pkgconfig:$PKG_CONFIG_PATH
 export UHD_RFNOC_DIR=$CUSTOMPREFIX/share/uhd/rfnoc/
 export UHD_IMAGES_DIR=$CUSTOMPREFIX/share/uhd/images
+```
+
+#### Pro Tip: How to Find ``PYTHONPATH``
+
+``PYTHONPATH`` differs depending on the version of OS, Python, and UHD. To find it consistently:
+
+```shell
+find ~/workarea/installs/uhdv4_5_0_0/ -name uhd | grep "packages"
+```
+
+Output:
+
+```shell
+/home/orantestbed/workarea/installs/uhdv4_5_0_0/lib/python3.10/site-packages/uhd
 ```
 
 To activate the environment for the custom prefix:
@@ -561,9 +624,23 @@ To activate the environment for the custom prefix:
 source uhdv4_5_0_0.env
 ```
 
-The built-in command ``source`` is for ``bash`` shells only. It affects only the terminal it is called in. Therefore,
+Look for a UHD program file again:
+
+```shell
+which uhd_find_devices
+```
+
+The version in the custom prefix is found, but not the one in the system prefix, as shown in the example output:
+
+```shell
+/home/orantestbed/workarea/installs/uhdv4_5_0_0/bin/uhd_find_devices
+```
+
+The ``source`` command affects only the terminal it runs in. Therefore,
 you can have multiple terminals, each with a different custom prefix environment activated. The effects do not
 persist after the terminal is closed.
+
+**NOTE:** ``source`` is a built-in command for ``bash`` shells only.
 
 **NOTE:** Installing UHD to a custom prefix also affects how other software that depends on UHD will find it when they
 are
@@ -634,12 +711,22 @@ ping 192.168.10.2
 Output:
 
 ```shell
-
+PING 192.168.10.2 (192.168.10.2) 56(84) bytes of data.
+64 bytes from 192.168.10.2: icmp_seq=1 ttl=63 time=2.20 ms
+64 bytes from 192.168.10.2: icmp_seq=2 ttl=63 time=2.16 ms
+64 bytes from 192.168.10.2: icmp_seq=3 ttl=63 time=2.14 ms
+64 bytes from 192.168.10.2: icmp_seq=4 ttl=63 time=2.18 ms
+64 bytes from 192.168.10.2: icmp_seq=5 ttl=63 time=1.90 ms
+^C
+--- 192.168.10.2 ping statistics ---
+5 packets transmitted, 5 received, 0% packet loss, time 4005ms
+rtt min/avg/max/mdev = 1.903/2.118/2.202/0.109 ms
 ```
 
 To learn more about default network settings of each device, see the [UHD Manual](https://files.ettus.com/manual/).
 
-If you have any issues with connecting to the USRP, see [Additional Resources](#additional-resources) or contact
+If you have any issues with connecting to the USRP, see [Troubleshooting](#troubleshooting) or 
+contact
 Technical Support.
 
 ### Verify Device Operation
@@ -795,22 +882,53 @@ Example output for B205mini:
 |   |   |   |   Gain Elements: None
 ```
 
+**At this point, the build and install from source process completed successfully and the USRP is operational. If you 
+experienced any issues during this process, or if you are curious about various UHD warning messages, see 
+[Troubleshooting](#troubleshooting) or contact Technical Support.** 
+
 ### SDR Application Development
 
 For a complete open-source SDR toolchain, you also need an application that processes the IQ samples that UHD
 streams between USRP and host PC. This could be an application that you develop using the UHD C/C++ or
 Python API, or existing application framework such as GNU Radio, Open Air Interface, SRS RAN, etc.
 
+* To develop with the UHD C/C++ API,
+see [Getting Started with UHD and C++](https://kb.ettus.com/Getting_Started_with_UHD_and_C%2B%2B).
+
+* To develop with the UHD Python API, see [UHD Python API](https://kb.ettus.com/UHD_Python_API).
+
+* To build and install GNU Radio from source, on top of UHD, see instructions from GNU Radio:
+https://wiki.gnuradio.org/index.php?title=LinuxInstall#From_Source
+
+* To develop with OAI, see
+the [OAI Reference Architecture](https://kb.ettus.com/OAI_Reference_Architecture_for_5G_and_6G_Research_with_USRP)
+
+* We are  working on a similar reference architecture for SRS.
+
+#### Find UHD in Custom Prefix
 When building these applications from source code, they are typically configured to look for UHD in the system prefix.
-If UHD is installed in a custom prefix, configure the build system of these applications using the relevant CMake
-flags to find UHD as a dependency.
+If UHD is installed in a custom prefix, the build configuration needs these CMake
+flags to find UHD as a dependency:
+* ```-DCMAKE_INSTALL_PREFIX=<your-custom-prefix>``` 
+* ```-DUHD_DIR=<your-custom-prefix>lib/cmake/uhd/```
+* ```-DUHD_INCLUDE_DIRS=<your-custom-prefix>/include/```
+* ```-DUHD_LIBRARIES=<your-custom-prefix>/lib/libuhd.so```.
 
-Use the following CMake flags when building the application stack on top of UHD:
-```-DCMAKE_INSTALL_PREFIX=<your-custom-prefix>``` ```-DUHD_DIR=<your-custom-prefix>lib/cmake/uhd/```
-```-DUHD_INCLUDE_DIRS=<your-custom-prefix>/include/``` and ```-DUHD_LIBRARIES=<your-custom-prefix>/lib/libuhd.so```.
+How these flags are set depends on the application's build system. 
 
-How these flags are applied depends on the application's build system. For GNU Radio, you can add them when running
-the``cmake`` command.
+For UHD C/C++ API, in the [Compile and Install](https://kb.ettus.com/Getting_Started_with_UHD_and_C%2B%2B#Compile_and_Install) section of the guide, replace the ``cmake`` step with the 
+following command:
+
+```shell
+cmake -DCMAKE_INSTALL_PREFIX=<your-custom-prefix> -DUHD_DIR=<your-custom-prefix>lib/cmake/uhd/ 
+-DUHD_INCLUDE_DIRS=<your-custom-prefix>/include/ -DUHD_LIBRARIES=<your-custom-prefix>/lib/libuhd.so ..
+```
+For UHD Python API, it is enough just to update the ``PYTHONPATH`` variable with the custom prefix, since Python is 
+not compiled, the interpreter just needs to know where the UHD Python package is for the ``import`` statement.
+
+For GNU Radio, follow the same step as the UHD C/C++ use case.
+
+However, OAI uses a build script that runs on top of ``cmake``, see the OAI guide linked above. 
 
 ## Additional Resources
 
