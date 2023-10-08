@@ -302,7 +302,7 @@ system will be able to find it in the standard ``$PATH`` and other environment v
 You can only install one concurrent version of UHD using the system prefix. To install multiple concurrent versions, see 
 [Build and Install with Custom Prefix](#build-and-install-with-custom-prefix).
 
-To build and install UHD:
+To build and install UHD with system prefix:
 ```shell
 # create a directory for the build output
 cd $HOME/workarea/uhd/host && mkdir build && cd build
@@ -336,8 +336,81 @@ cd $HOME/workarea/uhd/host/build
 # when prompted, press c to configure, which reveals all the available flags
 ccmake ..
 ```
-### Build and Install with Custom Prefix
 
+Output of ``ccmake ..``
+```shell
+
+```
+### Build and Install with Custom Prefix
+If you want to install multiple concurrent versions of UHD, use the CMake flag 
+``-DCMAKE_INSTALL_PREFIX=<your-custom-prefix>``. The custom prefix can be any directory, but it's good practice to 
+create an ``installs`` directory in ``$HOME/workarea`` that you created earlier. You need a different custom prefix 
+for each UHD version. In addition, you can also have one version of 
+UHD in the system prefix. 
+
+Another benefit of this method is that you can build and install UHD dependencies from source as well and put them 
+in the custom prefix. This is helpful, if you need to experiment with versions of dependencies not available 
+through ``apt`` and its PPAs, or if you just want to  preserve the state of your system packages to avoid 
+conflicts with other projects. As long as the dependency uses CMake, you should be able to configure a custom prefix 
+for it.
+
+To build and install UHD with custom prefix:
+```shell
+# create a directory for all custom prefix installations
+cd $HOME/workarea && mkdir installs
+# create a directory for the build output
+cd $HOME/workarea/uhd/host && mkdir build && cd build
+# use CMake to configure the build with default options
+cmake -DCMAKE_INSTALL_PREFIX=~/workarea/installs/uhdv4_5_0_0 ..
+# build the source code, using 8 threads
+make -j8
+# optionally, run unit tests
+make test
+# install into default prefix, /usr/local
+sudo make install
+# update dynamic linker with most recent shared libraries
+sudo ldconfig
+```
+Output of ``cmake -DCMAKE_INSTALL_PREFIX=~/workarea/installs/uhdv4_5_0_0 ..``
+```shell
+
+```
+The operating system cannot find UHD at the custom prefix location using the default values of ``$PATH`` and other 
+environmental variables. Important paths with in the custom prefix need to be added to the relevant environment 
+variables.
+
+Create a ``bash`` shell script to update the environment variables:
+```shell
+# go to the directory for the custom prefix
+cd $HOME/workarea/installs/uhdv4_5_0_0
+# create an empty file for the script
+touch uhdv4_5_0_0.env
+```
+Copy the following code into the file using an editor like ``nano``:
+```shell
+#!/bin/bash
+
+CUSTOMPREFIX=$HOME/workarea/installs/uhdv4_5_0_0
+export PATH=$CUSTOMPREFIX/bin:$PATH
+export LD_LOAD_LIBRARY=$CUSTOMPREFIX/lib:$LD_LOAD_LIBRARY
+export LD_LIBRARY_PATH=$CUSTOMPREFIX/lib:$LD_LIBRARY_PATH
+export PYTHONPATH=$CUSTOMPREFIX/lib/python2.7/site-packages:$PYTHONPATH
+export PYTHONPATH=$CUSTOMPREFIX/lib/python2.7/dist-packages:$PYTHONPATH
+export PKG_CONFIG_PATH=$CUSTOMPREFIX/lib/pkgconfig:$PKG_CONFIG_PATH
+export UHD_RFNOC_DIR=$CUSTOMPREFIX/share/uhd/rfnoc/
+export UHD_IMAGES_DIR=$CUSTOMPREFIX/share/uhd/images
+```
+To activate the environment for the custom prefix:
+```shell
+# source the environment activation script
+source uhdv4_5_0_0.env
+```
+The built-in command ``source`` is for ``bash`` shells only. It affects only the terminal it is called in. Therefore,
+you can have multiple terminals, each with a different custom prefix environment activated. The effects do not 
+persist after the terminal is closed. 
+
+**NOTE:** Installing UHD to a custom prefix also affects how other software that depends on UHD will find it when they are 
+built from source, see [Find UHD in Custom Prefix](#find-uhd-in-custom-prefix).
 
 ## Post Installation Configuration
 
