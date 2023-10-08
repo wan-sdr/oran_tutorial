@@ -37,7 +37,20 @@ details.
 Follow the instructions provided by Ubuntu:
 https://ubuntu.com/tutorials/install-ubuntu-desktop#1-overview
 
-**2. Install dependencies**
+**2. Install prebuilt UHD packages from PPA**
+
+For the *quickest* start experience, install prebuilt UHD packages from the Ettus Research PPA. If you want like to 
+learn the build and install from source process instead, skip to step 3.
+```shell
+# add ettus research ppa
+sudo add-apt-repository ppa:ettusresearch/uhd
+# update apt package list
+sudo apt-get update
+# install the following UHD packages
+sudo apt-get install libuhd-dev uhd-host uhd-doc
+```
+
+**3. Install dependencies**
 
 Run these commands:
 
@@ -50,7 +63,7 @@ sudo apt-get -y install build-essential ccache clang clang-format-14 cmake cmake
 sudo apt-get -y install doxygen dpdk libboost-all-dev libdpdk-dev libgps-dev libudev-dev libusb-1.0-0-dev python3-dev python3-docutils python3-mako python3-numpy python3-pip python3-requests python3-ruamel.yaml
 ```
 
-**3. Get the latest source code**
+**4. Get the latest source code**
 
 Run these commands:
 
@@ -61,7 +74,7 @@ cd $HOME && mkdir workarea && cd workarea
 git clone https://github.com/EttusResearch/uhd.git uhd && cd uhd && git checkout v4.5.0.0
 ```
 
-**4. Build and install**
+**5. Build and install**
 
 To set a custom install prefix, see the detailed [Build and Install from Source](#build-and-install-from-source)
 section.
@@ -80,7 +93,7 @@ sudo make install
 sudo ldconfig
 ```
 
-**5. Device specific configuration**
+**6. Device specific configuration**
 
 For USB devices, run these commands:
 
@@ -113,7 +126,7 @@ Run these commands:
 ping 192.168.10.2
 ```
 
-**6. Verify device operation**
+**7. Verify device operation**
 
 Run these commands:
 
