@@ -151,21 +151,13 @@ generally do not recommend.
 
 ## Dependencies
 
-We tested this guide with the [configuration](#tested-configuration) above, but the dependencies described in this
-section should work for Ubuntu 20.04 LTS and Ubuntu 22.04 LTS with UHD v4.0.0.0 or later. For other older version of
+The dependencies described in this section should work for Ubuntu 20.04 LTS and Ubuntu 22.04 LTS with UHD v4.0.0.0 or
+later. For other older version of
 Ubuntu, or other Linux distributions, please see [Additional Resources](#additional-resources).
 
-Dependencies are other software libraries that a software calls functions from. When installing software as a prebuilt
-package, the software installer or
-the OS package manager takes care of the dependencies for you. However, when building from source code, the user
-must make sure these dependencies are present on the operating system and the toolchain must know where to find them.
-
-In addition to software libraries that UHD needs to function, you also need to install several essential Linux
-utilities to perform the build from source process and to configure system settings after installation.
-
-All UHD dependencies and essential Linux utilities are open source software that is available as prebuilt packages
-through the standard Ubuntu package manager ``apt``. Typically, you do not need to build the dependencies themselves
-from source,unless you are combining an older version of UHD and OS, or modifying UHD.
+All UHD dependencies are open source software that is available through the Ubuntu package manager ``apt``.
+Typically, you do not need to build the dependencies themselves
+from source, unless you are combining an older version of UHD and OS, or modifying UHD.
 
 To install dependencies, run these commands:
 
@@ -175,21 +167,19 @@ sudo apt-get update
 # install Linux utilities, including build toolchain
 sudo apt-get -y install autoconf automake build-essential ccache clang cmake cpufrequtils clang-format-14 curl ethtool git inetutils-tools libudev-dev nano wget
 # install UHD dependencies
-sudo apt-get -y install doxygen dpdk libboost-all-dev libdpdk-dev libgps-dev libusb-1.0-0-dev python3-dev python3-docutils python3-mako python3-numpy python3-requests python3-ruamel.yaml python3-setuptools
+sudo apt-get -y install doxygen dpdk libboost-all-dev libdpdk-dev libgps-dev libncurses6 libusb-1.0-0-dev python3-dev python3-docutils python3-mako python3-numpy python3-requests python3-ruamel.yaml python3-setuptools
 ```
 
-### Dependency Pro Tips
-
-**Search Tool for Ubuntu Packages**
+#### Pro Tip: Search Tool for Ubuntu Packages
 
 Find any package available for specific version of Ubuntu, using this site: https://packages.ubuntu.com/. For
 a given package, it tells you what files will be installed and where.
 
-**Turn On/Off Optional Packages**
+#### Pro Tip: Turn On/Off Optional Packages
 
 The web tool also tells you the other packages
-related to this package. Related packages are group by ``depends``, ``recommends``, and ``suggests``. By default,
-``apt`` install dependent and recommended, but not suggested, packages.
+related to this package. Related packages are group by "depends", "recommends", and "suggests". By default,
+``apt`` installs "depends" and "recommends", but not "suggests".
 
 To change these settings:
 
@@ -200,7 +190,7 @@ sudo apt-get install --no-install-recommends <package-name>
 sudo apt-get -o APT::Install-Suggests="true" install <package-name>
 ```
 
-**Get UHD Dependencies**
+#### Pro Tip: Get UHD Dependencies
 
 You can also use``apt depends`` to see the dependencies of any package. The benefit of this method is that you can
 look up
@@ -266,6 +256,88 @@ libuhd4.5.0
 ```
 
 ## Build and Install from Source
+
+### UHD Versions
+
+It’s important to know the different versions of the source code:
+
+* Tagged releases are stable releases
+* Master branch has the latest features
+* Maintenance branches are for bug fixes on a major and API version after its release
+
+The UHD version numbering scheme is MAJOR.API.ABI.PATCH,
+see [UHD User Manual](https://files.ettus.com/manual/page_semver.html).
+
+**NOTE:** Tag names currently have the format ``v4.5.0.0``. Before version 3.11.0.1, the format was
+``release_003_011_000_001``.
+
+To clone the UHD repository and check out the latest release::
+
+```shell
+# create a directory to clone the UHD repository into
+cd $HOME && mkdir workarea && cd workarea
+# clone the UHD repository and checkout the latest tagged release
+git clone https://github.com/EttusResearch/uhd.git uhd && cd uhd && git checkout v4.5.0.0
+```
+
+To get a full list of tags:
+```shell
+git tag -l
+```
+
+To checkout the master or a maintenance branch:
+```shell
+# Example for UHD master branch:
+git checkout master
+# Example for UHD maintenance branch:
+git checkout UHD-4.5
+```
+
+### Build and Install with System Prefix
+CMake is the tool for configuring build options. An important CMake flag is ``-DCMAKE_INSTALL_PREFIX``. The default 
+value is the system prefix. It tells Make to install UHD to the standard location ``/usr/local``
+where the operating 
+system will be able to find it in the standard ``$PATH`` and other environment variables. 
+
+You can only install one concurrent version of UHD using the system prefix. To install multiple concurrent versions, see 
+[Build and Install with Custom Prefix](#build-and-install-with-custom-prefix).
+
+To build and install UHD:
+```shell
+# create a directory for the build output
+cd $HOME/workarea/uhd/host && mkdir build && cd build
+# use CMake to configure the build with default options
+cmake ..
+# build the source code, using 8 threads
+make -j8
+# optionally, run unit tests
+make test
+# install into default prefix, /usr/local
+sudo make install
+# update dynamic linker with most recent shared libraries
+sudo ldconfig
+```
+
+**NOTE:** If some test cases fail in the optional ``make test`` step, it does not mean that the build failed. The test 
+cases or the units under test might have a bug. Contact technical support in this case. 
+
+#### Pro Tip: View All CMake Flags
+It generally takes some experience with UHD to know all the important CMake Flags. The ``CMakeLists.txt`` files in 
+the source code will give a lot of insight about build options. However, a simpler way to see all the available 
+options is to use the ``cmake-curses-gui`` tool. 
+
+To see all CMake flags:
+```shell
+# install cmake-curses-gui package
+sudo apt-get update && sudo apt-get install cmake-curses-gui
+# go to the build directory
+cd $HOME/workarea/uhd/host/build
+# use ccmake to configure the build instead
+# when prompted, press c to configure, which reveals all the available flags
+ccmake ..
+```
+### Build and Install with Custom Prefix
+
 
 ## Post Installation Configuration
 
