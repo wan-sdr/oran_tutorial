@@ -4,10 +4,18 @@
 
 - [Abstract](#abstract)
 - [Quick Start](#quick-start)
+    - [Option 1: Prebuilt Packages from PPA](#option-1-prebuilt-packages-from-ppa)
+    - [Option 2: Build and Install from Source](#option-2-build-and-install-from-source)
 - [Devices](#devices)
 - [Dependencies](#dependencies)
 - [Build and Install from Source](#build-and-install-from-source)
+    - [UHD Versions](#uhd-versions)
+    - [Build and Install with System Prefix](#build-and-install-with-system-prefix)
+    - [Build and Install with Custom Prefix](#build-and-install-with-custom-prefix)
 - [Post Installation Configuration](#post-installation-configuration)
+    - [Configure USB Devices](#configure-usb-devices)
+    - [Configure Ethernet Devices](#configure-ethernet-devices)
+    - [Verify Device Operation](#verify-device-operation)
 - [Additional Resources](#additional-resources)
 
 ## Abstract
@@ -32,15 +40,17 @@ architecture, see [Additional Resources](#additional-resources).
 This section summarizes the step-by-step actions for a quick start experience, see the rest of this guide for more
 details.
 
+### Option 1: Prebuilt Packages from PPA
+
+For the *quickest* start experience, install prebuilt UHD packages from the Ettus Research PPA. Instead, If you want
+to learn the build and install from source process, skip to Option 2.
+
 **1. Install Ubuntu Desktop**
 
 Follow the instructions provided by Ubuntu:
 https://ubuntu.com/tutorials/install-ubuntu-desktop#1-overview
 
 **2. Install prebuilt UHD packages from PPA**
-
-For the *quickest* start experience, install prebuilt UHD packages from the Ettus Research PPA. Instead, If you want
-to learn the build and install from source process, skip to step 3.
 
 ```shell
 # add ettus research ppa
@@ -51,7 +61,27 @@ sudo apt-get update
 sudo apt-get install libuhd-dev uhd-host uhd-doc
 ```
 
-**3. Install dependencies**
+**3mak. Verify device operation**
+
+Run these commands:
+
+```shell
+# download FPGA images for the installed version of UHD
+sudo uhd_images_downloader
+# find all USRP devices connected to host
+uhd_find_devices
+# probe USRP device properties
+uhd_usrp_probe
+```
+
+### Option 2: Build and Install from Source
+
+**1. Install Ubuntu Desktop**
+
+Follow the instructions provided by Ubuntu:
+https://ubuntu.com/tutorials/install-ubuntu-desktop#1-overview
+
+**2. Install dependencies**
 
 Run these commands:
 
@@ -64,7 +94,7 @@ sudo apt-get -y install build-essential ccache clang clang-format-14 cmake cmake
 sudo apt-get -y install doxygen dpdk libboost-all-dev libdpdk-dev libgps-dev libudev-dev libusb-1.0-0-dev python3-dev python3-docutils python3-mako python3-numpy python3-pip python3-requests python3-ruamel.yaml
 ```
 
-**4. Get the latest source code**
+**3. Get the latest source code**
 
 Run these commands:
 
@@ -75,7 +105,7 @@ cd $HOME && mkdir workarea && cd workarea
 git clone https://github.com/EttusResearch/uhd.git uhd && cd uhd && git checkout v4.5.0.0
 ```
 
-**5. Build and install**
+**4. Build and install**
 
 To set a custom install prefix, see the detailed [Build and Install from Source](#build-and-install-from-source)
 section.
@@ -94,7 +124,7 @@ sudo make install
 sudo ldconfig
 ```
 
-**6. Device specific configuration**
+**5. Device specific configuration**
 
 For USB devices, run these commands **with the USRP disconnected**:
 
@@ -339,6 +369,55 @@ sudo ldconfig
 **NOTE:** If some test cases fail in the optional ``make test`` step, it does not mean that the build failed. The test
 cases or the units under test might have a bug. Contact technical support in this case.
 
+The install prefix ``/usr/local`` is shown near the end of the example output of ``cmake ..``:
+
+```shell
+...
+-- ######################################################
+-- # UHD enabled components
+-- ######################################################
+--   * LibUHD
+--   * LibUHD - C API
+--   * LibUHD - Python API
+--   * Examples
+--   * Utils
+--   * Tests
+--   * USB
+--   * B100
+--   * B200
+--   * USRP1
+--   * USRP2
+--   * X300
+--   * MPMD
+--   * SIM
+--   * N300
+--   * N320
+--   * E320
+--   * E300
+--   * X400
+--   * OctoClock
+--   * DPDK
+--   * Manual
+--   * API/Doxygen
+--   * Man Pages
+--
+-- ######################################################
+-- # UHD disabled components
+-- ######################################################
+--
+-- ******************************************************
+-- * You are building a development branch of UHD.
+-- * These branches are designed to provide early access
+-- * to UHD and USRP features, but should be considered
+-- * unstable and/or experimental!
+-- ******************************************************
+-- Building version: 4.5.0.HEAD-0-g471af98f
+-- Using install prefix: /usr/local
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/orantestbed/workarea/uhd/host/build
+```
+
 #### Pro Tip: View All CMake Flags
 
 It generally takes some experience with UHD to know all the important CMake Flags. The ``CMakeLists.txt`` files in
@@ -357,10 +436,55 @@ cd $HOME/workarea/uhd/host/build
 ccmake ..
 ```
 
-Output of ``ccmake ..``
+``CMAKE_INSTALL_PREFIX`` has the default value ``/usr/local/`` as shown in the example output of ``ccmake ..``. You
+can scroll through the list of flags and confirm that each ``ENABLE_<COMPONENT-NAME>`` value matches the "UHD Enabled
+Components" list from the output of ``cmake ..``
 
 ```shell
-
+ ...
+ Boost_CHRONO_LIBRARY_RELEASE     /usr/lib/x86_64-linux-gnu/libboost_chrono.so.1.74.0
+ Boost_DATE_TIME_LIBRARY_RELEAS   /usr/lib/x86_64-linux-gnu/libboost_date_time.so.1.74.0
+ Boost_FILESYSTEM_LIBRARY_RELEA   /usr/lib/x86_64-linux-gnu/libboost_filesystem.so.1.74.0
+ Boost_INCLUDE_DIR                /usr/include
+ Boost_PROGRAM_OPTIONS_LIBRARY_   /usr/lib/x86_64-linux-gnu/libboost_program_options.so.1.74.0
+ Boost_SERIALIZATION_LIBRARY_RE   /usr/lib/x86_64-linux-gnu/libboost_serialization.so.1.74.0
+ Boost_SYSTEM_LIBRARY_RELEASE     /usr/lib/x86_64-linux-gnu/libboost_system.so.1.74.0
+ Boost_THREAD_LIBRARY_RELEASE     /usr/lib/x86_64-linux-gnu/libboost_thread.so.1.74.0
+ Boost_UNIT_TEST_FRAMEWORK_LIBR   /usr/lib/x86_64-linux-gnu/libboost_unit_test_framework.so.1.74
+ CMAKE_BUILD_TYPE
+ CMAKE_INSTALL_PREFIX             /usr/local
+ DPDK_CONFIG_INCLUDE_DIR          /usr/include/x86_64-linux-gnu/dpdk
+ DPDK_LIBRARY                     DPDK_LIBRARY-NOTFOUND
+ DPDK_VERSION_INCLUDE_DIR         /usr/include/dpdk
+ ENABLE_B100                      ON
+ ENABLE_B200                      ON
+ ENABLE_C_API                     ON
+ ENABLE_DOXYGEN                   ON
+ ENABLE_DOXYGEN_DOT               OFF
+ ENABLE_DOXYGEN_FULL              OFF
+ ENABLE_DOXYGEN_SHORTNAMES        OFF
+ ENABLE_DPDK                      ON
+ ENABLE_E300                      ON
+ ENABLE_E320                      ON
+ ENABLE_EXAMPLES                  ON
+ ENABLE_LIBUHD                    ON
+ ENABLE_MANUAL                    ON
+ ENABLE_MAN_PAGES                 ON
+ ENABLE_MAN_PAGE_COMPRESSION      ON
+ ENABLE_MPMD                      ON
+ ENABLE_N300                      ON
+ ENABLE_N320                      ON
+ ENABLE_OCTOCLOCK                 ON
+ ENABLE_PYTHON_API                ON
+ ENABLE_SIM                       ON
+ ENABLE_STATIC_LIBS               OFF
+ ENABLE_TESTS                     ON
+ ENABLE_USB                       ON
+ ENABLE_USRP1                     ON
+ ENABLE_USRP2                     ON
+ ENABLE_UTILS                     ON
+ ENABLE_X300                      ON
+...
 ```
 
 ### Build and Install with Custom Prefix
@@ -471,10 +595,15 @@ Verify USB connection using:
 lsusb
 ```
 
-Output:
+You should see the USRP listed on the USB bus with a VID of ``2500`` and PID of ``0020``, ``0021``, ``0022``, for B200,
+B210,
+B200mini/B200mini-i/B205mini-i,
+respectively.
 
 ```shell
-
+...
+Bus 001 Device 002: ID 2500:0022 Ettus Research LLC USRP B205-mini
+...
 ```
 
 ### Configure Ethernet Devices
@@ -523,10 +652,41 @@ Download FPGA images for the installed version of UHD:
 sudo uhd_images_downloader
 ```
 
+**NOTE:** ``sudo`` is **not needed** if you installed UHD with a custom prefix that is not in a privileged directory.
+
 Output:
 
 ```shell
-
+[INFO] Using base URL: https://files.ettus.com/binaries/cache/
+[INFO] Images destination: /usr/local/share/uhd/images
+[INFO] No inventory file found at /usr/local/share/uhd/images/inventory.json. Creating an empty one.
+32358 kB / 32358 kB (100%) x4xx_x410_fpga_default-g5da42f3.zip
+42578 kB / 42578 kB (100%) x4xx_x440_fpga_default-g5da42f3.zip
+21587 kB / 21587 kB (100%) x3xx_x310_fpga_default-ga2a04e3.zip
+19763 kB / 19763 kB (100%) x3xx_x300_fpga_default-ga2a04e3.zip
+01121 kB / 01121 kB (100%) e3xx_e310_sg1_fpga_default-ga2a04e3.zip
+01118 kB / 01118 kB (100%) e3xx_e310_sg3_fpga_default-ga2a04e3.zip
+10196 kB / 10196 kB (100%) e3xx_e320_fpga_default-ga2a04e3.zip
+20929 kB / 20929 kB (100%) n3xx_n310_fpga_default-g5da42f3.zip
+14275 kB / 14275 kB (100%) n3xx_n300_fpga_default-g5da42f3.zip
+27174 kB / 27174 kB (100%) n3xx_n320_fpga_default-g5da42f3.zip
+00481 kB / 00481 kB (100%) b2xx_b200_fpga_default-g92c09f7.zip
+00464 kB / 00464 kB (100%) b2xx_b200mini_fpga_default-g92c09f7.zip
+00883 kB / 00883 kB (100%) b2xx_b210_fpga_default-g92c09f7.zip
+00511 kB / 00511 kB (100%) b2xx_b205mini_fpga_default-g92c09f7.zip
+00167 kB / 00167 kB (100%) b2xx_common_fw_default-g7f7d016.zip
+00007 kB / 00007 kB (100%) usrp2_usrp2_fw_default-g6bea23d.zip
+00450 kB / 00450 kB (100%) usrp2_usrp2_fpga_default-g6bea23d.zip
+02415 kB / 02415 kB (100%) usrp2_n200_fpga_default-g6bea23d.zip
+00009 kB / 00009 kB (100%) usrp2_n200_fw_default-g6bea23d.zip
+02757 kB / 02757 kB (100%) usrp2_n210_fpga_default-g6bea23d.zip
+00009 kB / 00009 kB (100%) usrp2_n210_fw_default-g6bea23d.zip
+00319 kB / 00319 kB (100%) usrp1_usrp1_fpga_default-g6bea23d.zip
+00522 kB / 00522 kB (100%) usrp1_b100_fpga_default-g6bea23d.zip
+00006 kB / 00006 kB (100%) usrp1_b100_fw_default-g6bea23d.zip
+00017 kB / 00017 kB (100%) octoclock_octoclock_fw_default-g14000041.zip
+04839 kB / 04839 kB (100%) usb_common_windrv_default-g14000041.zip
+[INFO] Images download complete.
 ```
 
 Find all USRP devices connected to host PC:
@@ -535,10 +695,18 @@ Find all USRP devices connected to host PC:
 uhd_find_devices
 ```
 
-Output:
+Example output for B205mini:
 
 ```shell
-
+[INFO] [UHD] linux; GNU C++ version 11.4.0; Boost_107400; DPDK_21.11; UHD_4.5.0.HEAD-0-g471af98f
+--------------------------------------------------
+-- UHD Device 0
+--------------------------------------------------
+Device Address:
+    serial: 316B7A0
+    name: B205i
+    product: B205mini
+    type: b200
 ```
 
 Probe USRP device properties
@@ -547,10 +715,84 @@ Probe USRP device properties
 uhd_usrp_probe
 ```
 
-Output:
+Example output for B205mini:
 
 ```shell
-
+[INFO] [UHD] linux; GNU C++ version 11.4.0; Boost_107400; DPDK_21.11; UHD_4.5.0.HEAD-0-g471af98f
+[INFO] [B200] Detected Device: B205mini
+[INFO] [B200] Loading FPGA image: /usr/local/share/uhd/images/usrp_b205mini_fpga.bin...
+[INFO] [B200] Operating over USB 3.
+[INFO] [B200] Initialize CODEC control...
+[INFO] [B200] Initialize Radio control...
+[INFO] [B200] Performing register loopback test...
+[INFO] [B200] Register loopback test passed
+[INFO] [B200] Setting master clock rate selection to 'automatic'.
+[INFO] [B200] Asking for clock rate 16.000000 MHz...
+[INFO] [B200] Actually got clock rate 16.000000 MHz.
+  _____________________________________________________
+ /
+|       Device: B-Series Device
+|     _____________________________________________________
+|    /
+|   |       Mboard: B205mini
+|   |   serial: 316B7A0
+|   |   name: B205i
+|   |   product: 30522
+|   |   revision: 3
+|   |   FW Version: 8.0
+|   |   FPGA Version: 7.0
+|   |
+|   |   Time sources:  none, internal, external
+|   |   Clock sources: internal, external
+|   |   Sensors: ref_locked
+|   |     _____________________________________________________
+|   |    /
+|   |   |       RX DSP: 0
+|   |   |
+|   |   |   Freq range: -8.000 to 8.000 MHz
+|   |     _____________________________________________________
+|   |    /
+|   |   |       RX Dboard: A
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       RX Frontend: A
+|   |   |   |   Name: FE-RX1
+|   |   |   |   Antennas: TX/RX, RX2
+|   |   |   |   Sensors: temp, rssi, lo_locked
+|   |   |   |   Freq range: 50.000 to 6000.000 MHz
+|   |   |   |   Gain range PGA: 0.0 to 76.0 step 1.0 dB
+|   |   |   |   Bandwidth range: 200000.0 to 56000000.0 step 0.0 Hz
+|   |   |   |   Connection Type: IQ
+|   |   |   |   Uses LO offset: No
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       RX Codec: A
+|   |   |   |   Name: B205mini RX dual ADC
+|   |   |   |   Gain Elements: None
+|   |     _____________________________________________________
+|   |    /
+|   |   |       TX DSP: 0
+|   |   |
+|   |   |   Freq range: -8.000 to 8.000 MHz
+|   |     _____________________________________________________
+|   |    /
+|   |   |       TX Dboard: A
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       TX Frontend: A
+|   |   |   |   Name: FE-TX1
+|   |   |   |   Antennas: TX/RX
+|   |   |   |   Sensors: temp, lo_locked
+|   |   |   |   Freq range: 50.000 to 6000.000 MHz
+|   |   |   |   Gain range PGA: 0.0 to 89.8 step 0.2 dB
+|   |   |   |   Bandwidth range: 200000.0 to 56000000.0 step 0.0 Hz
+|   |   |   |   Connection Type: IQ
+|   |   |   |   Uses LO offset: No
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       TX Codec: A
+|   |   |   |   Name: B205mini TX dual DAC
+|   |   |   |   Gain Elements: None
 ```
 
 ### SDR Application Development
@@ -567,29 +809,34 @@ Use the following CMake flags when building the application stack on top of UHD:
 ```-DCMAKE_INSTALL_PREFIX=<your-custom-prefix>``` ```-DUHD_DIR=<your-custom-prefix>lib/cmake/uhd/```
 ```-DUHD_INCLUDE_DIRS=<your-custom-prefix>/include/``` and ```-DUHD_LIBRARIES=<your-custom-prefix>/lib/libuhd.so```.
 
-How these flags are applied depends on the application's build system. For GNU Radio, you can add them when running 
-the``cmake`` command. 
+How these flags are applied depends on the application's build system. For GNU Radio, you can add them when running
+the``cmake`` command.
 
 ## Additional Resources
+
 ### UHD Installation
+
 * Overview of All UHD Installation Application Notes (Coming soon...)
 * Build and Install UHD on Older Ubuntu and Other Linux Distributions (Coming soon...)
 * Build and Install UHD from Source on Mac
 * Build and Install UHD from Source on Windows
+* Build and Install UHD on Embedded Devices
 * Build and Install UHD from Source on an Offline System
 * Using UHD with Windows Subsystem Linux (Coming soon...)
 * Using UHD with Docker Containers (Coming soon...)
 
 ### Troubleshooting
+
 * Verifying Device Operation
 * Host Performance Tuning
 * Device Discovery Issues
 * Device Recovery
 
 ### Application Development
+
 * Developing UHD Application
 * GNU Radio Installation
 * OAI Reference Architecture
-* SRS Reference Architecture (Coming Soon)
+* SRS Reference Architecture (Coming Soon...)
 
 
